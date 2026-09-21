@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>櫻花日文速成村 - 零基礎四感極速學習 App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sakura: {
+                            50: '#fff5f7',
+                            100: '#ffe3ec',
+                            300: '#fbaac9',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        },
+                        tokyo: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            accent: '#38bdf8',
+                            gold: '#fbbf24'
+                        }
+                    },
+                    fontFamily: {
+                        jp: ['"Noto Sans JP"', 'sans-serif'],
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Poppins', 'Noto Sans JP', sans-serif; }
+        .kana-card { transition: all 0.2s ease-in-out; }
+        .kana-card:hover { transform: translateY(-3px); }
+        .canvas-container { touch-action: none; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f43f5e; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-sakura-500 selection:text-white">
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sakura-500 to-amber-400 flex items-center justify-center shadow-lg shadow-sakura-500/30">
+                    <i class="fa-solid font-jp font-black text-xl text-white">あ</i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-sakura-300 via-rose-200 to-amber-200">
+                        Sakura Quest <span class="text-xs px-2 py-0.5 rounded bg-sakura-500/20 text-sakura-300 border border-sakura-500/30">30+速成版</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">零基礎聽寫讀講通關</p>
+                </div>
+            </div>
+
+            <!-- Gamification Status Bar -->
+            <div class="flex items-center space-x-3 sm:space-x-6 text-sm font-semibold">
+                <!-- Audio Test Button -->
+                <button onclick="testAudioSupport()" class="flex items-center space-x-1.5 bg-sakura-500/20 hover:bg-sakura-500/30 text-sakura-300 px-3 py-1.5 rounded-full border border-sakura-500/40 text-xs transition">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <span>測試聲音</span>
+                </button>
+
+                <div class="flex items-center space-x-1.5 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+                    <i class="fa-solid fa-fire text-amber-500 animate-pulse"></i>
+                    <span id="streakCount" class="text-amber-400">1</span>
+                    <span class="text-xs text-slate-400 hidden sm:inline">天連續</span>
+                </div>
+                <div class="flex items-center space-x-1.5 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+                    <i class="fa-solid fa-bolt text-yellow-400"></i>
+                    <span id="userXP" class="text-yellow-400">120</span>
+                    <span class="text-xs text-slate-400 hidden sm:inline">XP</span>
+                </div>
+                <div class="flex items-center space-x-1.5 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+                    <i class="fa-solid fa-crown text-emerald-400"></i>
+                    <span id="userLevel" class="text-emerald-400">Lv.1</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Navigation Tabs Sidebar (Desktop) / Top Slider (Mobile) -->
+        <nav class="lg:col-span-3 flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-2 lg:pb-0 scrollbar-none">
+            <button onclick="switchTab('kana')" id="tab-kana" class="tab-btn active flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition text-left shrink-0 bg-sakura-600 text-white shadow-lg shadow-sakura-600/30">
+                <i class="fa-solid fa-table-cells text-lg"></i>
+                <div>
+                    <div class="text-sm font-bold">1. 五十音基礎</div>
+                    <div class="text-xs opacity-75">點擊發音 & 臨摹畫板</div>
+                </div>
+            </button>
+
+            <button onclick="switchTab('skills')" id="tab-skills" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition text-left shrink-0 text-slate-400 hover:text-white hover:bg-slate-800">
+                <i class="fa-solid fa-brain text-lg text-sky-400"></i>
+                <div>
+                    <div class="text-sm font-bold">2. 四感修煉場</div>
+                    <div class="text-xs text-slate-400">聽寫讀講 專項特訓</div>
+                </div>
+            </button>
+
+            <button onclick="switchTab('quests')" id="tab-quests" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition text-left shrink-0 text-slate-400 hover:text-white hover:bg-slate-800">
+                <i class="fa-solid fa-map-location-dot text-lg text-emerald-400"></i>
+                <div>
+                    <div class="text-sm font-bold">3. 東京實戰冒險</div>
+                    <div class="text-xs text-slate-400">居酒屋/問路/購物情境</div>
+                </div>
+            </button>
+
+            <button onclick="switchTab('ai')" id="tab-ai" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition text-left shrink-0 text-slate-400 hover:text-white hover:bg-slate-800">
+                <i class="fa-solid fa-robot text-lg text-amber-400"></i>
+                <div>
+                    <div class="text-sm font-bold">4. AI 櫻花 Sensei</div>
+                    <div class="text-xs text-slate-400">Gemini 智能私人導師</div>
+                </div>
+            </button>
+        </nav>
+
+        <!-- Interactive Workspace (Right Side) -->
+        <section class="lg:col-span-9 space-y-6">
+
+            <!-- TAB 1: 50 SOUNDS CHART & TRACING (五十音圖) -->
+            <div id="view-kana" class="tab-view space-y-6">
+                <!-- Header Control bar -->
+                <div class="glass-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 border border-slate-800">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-volume-high text-sakura-400"></i> 五十音圖 (50 Sounds Master)
+                        </h2>
+                        <p class="text-xs text-slate-400">點擊卡片聽讀音，右側可開啟手寫板親自練寫！</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                        <button id="btn-hiragana" onclick="setKanaType('hiragana')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sakura-500 text-white transition">平假名 (Hiragana)</button>
+                        <button id="btn-katakana" onclick="setKanaType('katakana')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">片假名 (Katakana)</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <!-- Kana Grid -->
+                    <div class="md:col-span-8 glass-panel p-4 rounded-2xl border border-slate-800 max-h-[500px] overflow-y-auto">
+                        <div id="kanaGrid" class="grid grid-cols-5 gap-2 font-jp">
+                            <!-- Dynamic Kana Cards generated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Interactive Writing Canvas -->
+                    <div class="md:col-span-4 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-between">
+                        <div class="w-full text-center">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">寫字筆順臨摹 (Writing Practice)</span>
+                            <div class="mt-2 text-6xl font-black text-sakura-400 font-jp h-20 flex items-center justify-center" id="currentKanaDisplay">あ</div>
+                            <div class="text-sm font-semibold text-slate-300" id="currentRomajiDisplay">a</div>
+                        </div>
+
+                        <!-- Canvas Pad -->
+                        <div class="relative canvas-container my-3 rounded-xl border-2 border-dashed border-slate-700 bg-slate-950/80 overflow-hidden shadow-inner">
+                            <canvas id="writeCanvas" width="200" height="200" class="cursor-crosshair"></canvas>
+                            <!-- Rice Grid Background lines -->
+                            <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                <div class="w-full h-[1px] bg-slate-800/50"></div>
+                                <div class="h-full w-[1px] bg-slate-800/50 absolute"></div>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Controls -->
+                        <div class="flex items-center gap-2 w-full">
+                            <button onclick="clearCanvas()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl transition text-slate-300">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> 清除重新寫
+                            </button>
+                            <button onclick="speakKana(selectedKana.char)" class="p-2 bg-sakura-500/20 hover:bg-sakura-500/30 text-sakura-300 rounded-xl transition text-sm">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: FOUR SKILLS CHALLENGE HUB (四感修煉場) -->
+            <div id="view-skills" class="tab-view hidden space-y-6">
+                <!-- Skill selector bar -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <button onclick="setSkillMode('listen')" id="skill-listen" class="p-4 rounded-2xl glass-panel border border-sky-500/50 text-sky-400 flex flex-col items-center text-center gap-2 hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-headphones text-2xl"></i>
+                        <span class="text-sm font-bold">聽力測驗 (Listening)</span>
+                    </button>
+                    <button onclick="setSkillMode('speak')" id="skill-speak" class="p-4 rounded-2xl glass-panel border border-slate-800 text-slate-400 flex flex-col items-center text-center gap-2 hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-microphone text-2xl"></i>
+                        <span class="text-sm font-bold">口語發音 (Speaking)</span>
+                    </button>
+                    <button onclick="setSkillMode('read')" id="skill-read" class="p-4 rounded-2xl glass-panel border border-slate-800 text-slate-400 flex flex-col items-center text-center gap-2 hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-book-open text-2xl"></i>
+                        <span class="text-sm font-bold">閱讀單字 (Reading)</span>
+                    </button>
+                    <button onclick="setSkillMode('write')" id="skill-write" class="p-4 rounded-2xl glass-panel border border-slate-800 text-slate-400 flex flex-col items-center text-center gap-2 hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-pen-nib text-2xl"></i>
+                        <span class="text-sm font-bold">拼寫練習 (Writing)</span>
+                    </button>
+                </div>
+
+                <!-- Interactive Quiz Area -->
+                <div class="glass-panel p-6 rounded-3xl border border-slate-800 min-h-[360px] flex flex-col justify-between" id="quizContainer">
+                    <!-- Dynamic Quiz Content Rendered Here -->
+                </div>
+            </div>
+
+            <!-- TAB 3: REAL-LIFE ADULT TOKYO QUESTS (東京實戰冒險) -->
+            <div id="view-quests" class="tab-view hidden space-y-6">
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-champagne-glasses text-emerald-400"></i> 成人日本生活實戰 (Tokyo Life Quests)
+                        </h2>
+                        <p class="text-xs text-slate-400">專為 30+ 歲成人設計的真實情境（居酒屋、便利店、搭車、飯店 check-in）</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="questsGrid">
+                    <!-- Quest Cards Generated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 4: GEMINI AI TUTOR (AI 櫻花 SENSEI) -->
+            <div id="view-ai" class="tab-view hidden space-y-4">
+                <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-100 text-sm">AI 櫻花 Sensei (Gemini 驅動)</h3>
+                            <p class="text-xs text-slate-400">你的 24小時專屬日文發音 & 語法解答導師</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-lg border border-emerald-500/30">線上解惑中</span>
+                </div>
+
+                <!-- Chat Box Window -->
+                <div class="glass-panel rounded-2xl border border-slate-800 h-[400px] flex flex-col overflow-hidden">
+                    <!-- Messages Container -->
+                    <div id="aiChatMessages" class="flex-1 p-4 overflow-y-auto space-y-4 text-sm">
+                        <!-- AI Welcome message -->
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
+                            <div class="bg-slate-800/90 p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-slate-700/50">
+                                こんにちは！我是你的日文 AI 導師櫻花 Sensei 🌸。<br>
+                                不管是五十音發音技巧、文法疑惑，或者是「這句日文在居酒屋怎麼講？」，都可以隨時問我喔！
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Suggestions -->
+                    <div class="px-4 py-2 border-t border-slate-800/80 flex gap-2 overflow-x-auto text-xs scrollbar-none">
+                        <button onclick="sendQuickPrompt('「こんにちは」同「こんばんは」有咩分別？')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 shrink-0">💡 「こんにちは」同「こんばんは」分別？</button>
+                        <button onclick="sendQuickPrompt('幫我教我 3 句居酒屋點餐必備日文！')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 shrink-0">🍺 居酒屋點餐 3 大神句</button>
+                        <button onclick="sendQuickPrompt('日文「すみません」可以點樣用？')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 shrink-0">🙏 「すみません」的萬能用法</button>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2">
+                        <input type="text" id="aiInput" placeholder="請用中文或日文提問..." onkeydown="if(event.key === 'Enter') sendAIMessage()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-sakura-500 transition">
+                        <button onclick="sendAIMessage()" class="px-4 py-2 bg-sakura-600 hover:bg-sakura-500 text-white rounded-xl font-bold text-sm transition flex items-center gap-2">
+                            <span>發送</span>
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // --- 1. DATA DEFINITIONS ---
+        const KANA_DATA = [
+            { char: 'あ', kanaK: 'ア', romaji: 'a', example: '朝 (asa / 早上)' },
+            { char: 'い', kanaK: 'イ', romaji: 'i', example: '犬 (inu / 狗)' },
+            { char: 'う', kanaK: 'ウ', romaji: 'u', example: '海 (umi / 大海)' },
+            { char: 'え', kanaK: 'エ', romaji: 'e', example: '駅 (eki / 車站)' },
+            { char: 'お', kanaK: 'オ', romaji: 'o', example: '茶 (ocha / 茶)' },
+            { char: 'か', kanaK: 'カ', romaji: 'ka', example: '傘 (kasa / 雨傘)' },
+            { char: 'き', kanaK: 'キ', romaji: 'ki', example: '木 (ki / 樹木)' },
+            { char: 'く', kanaK: 'ク', romaji: 'ku', example: '車 (kuruma / 汽車)' },
+            { char: 'け', kanaK: 'ケ', romaji: 'ke', example: '毛 (ke / 毛發)' },
+            { char: 'こ', kanaK: 'コ', romaji: 'ko', example: '心 (kokoro / 心靈)' },
+            { char: 'さ', kanaK: 'サ', romaji: 'sa', example: '魚 (sakana / 魚)' },
+            { char: 'し', kanaK: 'シ', romaji: 'shi', example: '塩 (shio / 鹽)' },
+            { char: 'す', kanaK: 'ス', romaji: 'su', example: '寿司 (sushi / 壽司)' },
+            { char: 'せ', kanaK: 'セ', romaji: 'se', example: '世界 (sekai / 世界)' },
+            { char: 'そ', kanaK: 'ソ', romaji: 'so', example: '空 (sora / 天空)' },
+            { char: 'た', kanaK: 'タ', romaji: 'ta', example: '卵 (tamago / 雞蛋)' },
+            { char: 'ち', kanaK: 'チ', romaji: 'chi', example: '父 (chichi / 父親)' },
+            { char: 'つ', kanaK: 'ツ', romaji: 'tsu', example: '月 (tsuki / 月亮)' },
+            { char: 'て', kanaK: 'テ', romaji: 'te', example: '手 (te / 手)' },
+            { char: 'と', kanaK: 'ト', romaji: 'to', example: '時計 (tokei / 時鐘)' },
+            { char: 'な', kanaK: 'ナ', romaji: 'na', example: '夏 (natsu / 夏天)' },
+            { char: 'に', kanaK: 'ニ', romaji: 'ni', example: '肉 (niku / 肉類)' },
+            { char: 'ぬ', kanaK: 'ヌ', romaji: 'nu', example: '犬 (inu / 狗)' },
+            { char: 'ね', kanaK: 'ネ', romaji: 'ne', example: '猫 (neko / 貓)' },
+            { char: 'の', kanaK: 'ノ', romaji: 'no', example: '飲 (nomu / 喝)' }
+        ];
+
+        const REAL_LIFE_QUESTS = [
+            {
+                id: 1,
+                title: '🍺 東京居酒屋點餐 (Izakaya Order)',
+                desc: '學習成人最實用的「請給我這個」與點生啤酒用語。',
+                phrases: [
+                    { jp: '生ビール、お願いします。', romaji: 'Namabeeru, onegaishimasu.', hk: '請給我生啤酒。' },
+                    { jp: 'これと、これをください。', romaji: 'Kore to, kore o kudasai.', hk: '請給我這個同這個。' },
+                    { jp: 'お会計、お願いします。', romaji: 'Okaikei, onegaishimasu.', hk: '麻煩埋單。' }
+                ]
+            },
+            {
+                id: 2,
+                title: '🏪 7-11 便利店問答 (Convenience Store)',
+                desc: '店員常問的「要加熱嗎？」與「要袋子嗎？」。',
+                phrases: [
+                    { jp: '温めますか？', romaji: 'Atatame masu ka?', hk: '需要加熱嗎？' },
+                    { jp: '大丈夫です。', romaji: 'Daijoubu desu.', hk: '唔需要 / 冇問題。' },
+                    { jp: '袋は要りません。', romaji: 'Fukuro wa irimansen.', hk: '我唔需要袋。' }
+                ]
+            },
+            {
+                id: 3,
+                title: '🚃 山手線電車問路 (Asking Directions)',
+                desc: '在繁華的東京地下鐵或JR詢問「請問在哪裡？」。',
+                phrases: [
+                    { jp: 'すみません、トイレはどこですか？', romaji: 'Sumimasen, toire wa doko desu ka?', hk: '請問洗手間喺邊度？' },
+                    { jp: '新宿駅に行きますか？', romaji: 'Shinjuku eki ni ikimasu ka?', hk: '這班車去新宿站嗎？' }
+                ]
+            }
+        ];
+
+        // Global State
+        let currentKanaType = 'hiragana';
+        let selectedKana = KANA_DATA[0];
+        let userXP = 120;
+        let userLevel = 1;
+        let streak = 1;
+        let activeSkillMode = 'listen';
+        let currentUtterance = null; // 全域保存，防止流動瀏覽器 GC (Garbage Collection) 導致停聲
+
+        // 預先載入系統語音庫
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        // --- 2. INITIALIZATION & UI ROUTING ---
+        window.onload = () => {
+            renderKanaGrid();
+            initCanvas();
+            setSkillMode('listen');
+            renderQuests();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-sakura-600', 'text-white', 'shadow-lg', 'shadow-sakura-600/30');
+                el.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('bg-sakura-600', 'text-white', 'shadow-lg', 'shadow-sakura-600/30');
+        }
+
+        // --- 3. SPEECH SYNTHESIS ENGINE (AUDIO PRONUNCIATION) ---
+        function testAudioSupport() {
+            if (!('speechSynthesis' in window)) {
+                showToast("❌ 你的瀏覽器不支援語音合成", "error");
+                return;
+            }
+            window.speechSynthesis.resume();
+            speakKana("こんにちは");
+            showToast("🔊 正在測試發音！如無聲，請檢查手機是否開了靜音模式", "info");
+        }
+
+        function speakKana(text) {
+            if (!('speechSynthesis' in window)) {
+                showToast("⚠️ 你的瀏覽器不支援語音合成發音。", "error");
+                return;
+            }
+
+            try {
+                // 解鎖及重置發音引擎狀態
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.resume();
+
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                currentUtterance.lang = 'ja-JP';
+                currentUtterance.rate = 0.85; // 稍慢讀音，適合新手
+                currentUtterance.volume = 1.0;
+
+                // 優先選擇日文 (ja-JP) 專用音色
+                const voices = window.speechSynthesis.getVoices();
+                const jaVoice = voices.find(v => v.lang.includes('ja') || v.lang.includes('JA'));
+                if (jaVoice) {
+                    currentUtterance.voice = jaVoice;
+                }
+
+                currentUtterance.onerror = (e) => {
+                    console.error("Speech error:", e);
+                    showToast("⚠️ 發音播放受阻，請點擊右上角「測試聲音」", "error");
+                };
+
+                window.speechSynthesis.speak(currentUtterance);
+            } catch (e) {
+                console.error("Speech synthesis exception:", e);
+                showToast("⚠️ 語音功能異常", "error");
+            }
+        }
+
+        // --- 4. 50 SOUNDS (五十音圖) LOGIC ---
+        function setKanaType(type) {
+            currentKanaType = type;
+            const btnH = document.getElementById('btn-hiragana');
+            const btnK = document.getElementById('btn-katakana');
+
+            if (type === 'hiragana') {
+                btnH.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-sakura-500 text-white transition";
+                btnK.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+            } else {
+                btnK.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-sakura-500 text-white transition";
+                btnH.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+            }
+            renderKanaGrid();
+        }
+
+        function renderKanaGrid() {
+            const grid = document.getElementById('kanaGrid');
+            grid.innerHTML = '';
+
+            KANA_DATA.forEach(item => {
+                const char = currentKanaType === 'hiragana' ? item.char : item.kanaK;
+                const card = document.createElement('button');
+                card.className = `kana-card p-3 rounded-xl bg-slate-900 border ${selectedKana.char === item.char ? 'border-sakura-500 bg-sakura-500/10' : 'border-slate-800'} flex flex-col items-center justify-center hover:border-sakura-400 transition cursor-pointer`;
+                card.onclick = () => selectKana(item);
+                card.innerHTML = `
+                    <span class="text-2xl font-bold text-slate-100">${char}</span>
+                    <span class="text-[10px] font-mono text-slate-400 mt-1">${item.romaji}</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectKana(item) {
+            selectedKana = item;
+            renderKanaGrid();
+            const char = currentKanaType === 'hiragana' ? item.char : item.kanaK;
+            document.getElementById('currentKanaDisplay').innerText = char;
+            document.getElementById('currentRomajiDisplay').innerText = `${item.romaji} (${item.example})`;
+            speakKana(char);
+            clearCanvas();
+        }
+
+        // --- 5. CANVAS WRITING PAD LOGIC ---
+        let canvas, ctx, isDrawing = false;
+
+        function initCanvas() {
+            canvas = document.getElementById('writeCanvas');
+            ctx = canvas.getContext('2d');
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#f43f5e'; // Sakura pink stroke
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+
+            // Touch events for Mobile/Tablet
+            canvas.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                isDrawing = true;
+                ctx.beginPath();
+                ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            });
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isDrawing) return;
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+                ctx.stroke();
+                e.preventDefault();
+            });
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- 6. FOUR SKILLS QUIZ ENGINE (聽、寫、讀、講) ---
+        function setSkillMode(mode) {
+            activeSkillMode = mode;
+            ['listen', 'speak', 'read', 'write'].forEach(m => {
+                const btn = document.getElementById(`skill-${m}`);
+                if (m === mode) {
+                    btn.className = "p-4 rounded-2xl glass-panel border border-sakura-500 text-sakura-400 flex flex-col items-center text-center gap-2 bg-sakura-500/10 transition";
+                } else {
+                    btn.className = "p-4 rounded-2xl glass-panel border border-slate-800 text-slate-400 flex flex-col items-center text-center gap-2 hover:bg-slate-800 transition";
+                }
+            });
+            renderQuiz();
+        }
+
+        let currentQuizData = null;
+
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            // Select random target Kana
+            const targetIndex = Math.floor(Math.random() * KANA_DATA.length);
+            currentQuizData = KANA_DATA[targetIndex];
+
+            // Generate distractors
+            let choices = [currentQuizData];
+            while (choices.length < 4) {
+                const rand = KANA_DATA[Math.floor(Math.random() * KANA_DATA.length)];
+                if (!choices.includes(rand)) choices.push(rand);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            if (activeSkillMode === 'listen') {
+                container.innerHTML = `
+                    <div class="text-center space-y-4">
+                        <span class="text-xs font-bold text-sky-400 uppercase tracking-widest">聽力專項特訓 (Listening Challenge)</span>
+                        <h3 class="text-xl font-bold">點擊下方按鈕聽發音，選出正確的假名：</h3>
+                        <button onclick="speakKana('${currentQuizData.char}')" class="mx-auto w-20 h-20 rounded-full bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 border border-sky-500/40 flex items-center justify-center text-3xl shadow-lg transition">
+                            <i class="fa-solid fa-volume-high animate-bounce"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-6">
+                        ${choices.map(c => `
+                            <button onclick="checkAnswer('${c.char}', '${currentQuizData.char}')" class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-400 font-jp text-2xl font-bold transition">
+                                ${c.char}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (activeSkillMode === 'read') {
+                container.innerHTML = `
+                    <div class="text-center space-y-4">
+                        <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">閱讀與羅馬字 (Reading Challenge)</span>
+                        <h3 class="text-xl font-bold">請問假名 <span class="text-4xl text-sakura-400 font-jp mx-1">${currentQuizData.char}</span> 的羅馬字讀音是？</h3>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-6">
+                        ${choices.map(c => `
+                            <button onclick="checkAnswer('${c.romaji}', '${currentQuizData.romaji}')" class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-400 font-mono text-xl font-bold transition">
+                                ${c.romaji}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (activeSkillMode === 'speak') {
+                container.innerHTML = `
+                    <div class="text-center space-y-4">
+                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">口語發音特訓 (Speaking Challenge)</span>
+                        <h3 class="text-lg font-bold">請朗讀以下假名及羅馬字：</h3>
+                        <div class="text-6xl font-black font-jp text-sakura-400">${currentQuizData.char}</div>
+                        <div class="text-lg text-slate-400 font-mono">(${currentQuizData.romaji})</div>
+                        <p class="text-xs text-slate-500">點擊麥克風按鈕對著手機/電腦說出這音</p>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-3 mt-4">
+                        <button onclick="startVoiceRecognition('${currentQuizData.romaji}')" id="micBtn" class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-2xl hover:bg-amber-500/30 transition">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <div id="speechResult" class="text-xs text-slate-400 h-6">點擊麥克風開始錄音</div>
+                    </div>
+                `;
+            } else if (activeSkillMode === 'write') {
+                container.innerHTML = `
+                    <div class="text-center space-y-4">
+                        <span class="text-xs font-bold text-rose-400 uppercase tracking-widest">拼寫認知挑戰 (Writing Spelling)</span>
+                        <h3 class="text-xl font-bold">羅馬字為 <span class="text-2xl text-amber-400 font-mono">${currentQuizData.romaji}</span> 的假名是？</h3>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-6">
+                        ${choices.map(c => `
+                            <button onclick="checkAnswer('${c.char}', '${currentQuizData.char}')" class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-400 font-jp text-2xl font-bold transition">
+                                ${c.char}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function checkAnswer(selected, correct) {
+            if (selected === correct) {
+                addXP(20);
+                speakKana("正解");
+                showToast("🎉 答對了！+20 XP", "success");
+            } else {
+                showToast(`❌ 答錯囉！正確答案是 ${correct}`, "error");
+            }
+            setTimeout(renderQuiz, 1200);
+        }
+
+        function startVoiceRecognition(expectedRomaji) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast("你的瀏覽器暫時不支援語音識別功能", "error");
+                // Fallback simulation
+                setTimeout(() => {
+                    addXP(15);
+                    showToast("🎤 模擬識別成功！+15 XP", "success");
+                    renderQuiz();
+                }, 1000);
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP';
+            const micBtn = document.getElementById('micBtn');
+            const resultDiv = document.getElementById('speechResult');
+
+            micBtn.classList.add('animate-pulse', 'bg-rose-500/30', 'text-rose-400');
+            resultDiv.innerText = "聆聽中... 請清晰朗讀！";
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                resultDiv.innerText = `識別結果：${transcript}`;
+                addXP(25);
+                showToast(`🗣️ 發音優良 (識別: ${transcript})！+25 XP`, "success");
+                micBtn.classList.remove('animate-pulse', 'bg-rose-500/30', 'text-rose-400');
+                setTimeout(renderQuiz, 1500);
+            };
+
+            recognition.onerror = () => {
+                resultDiv.innerText = "未聽清楚，請再試一次！";
+                micBtn.classList.remove('animate-pulse', 'bg-rose-500/30', 'text-rose-400');
+            };
+        }
+
+        // --- 7. REAL-LIFE QUESTS RENDERER ---
+        function renderQuests() {
+            const container = document.getElementById('questsGrid');
+            container.innerHTML = REAL_LIFE_QUESTS.map(q => `
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4 hover:border-slate-700 transition">
+                    <h3 class="font-bold text-slate-100 text-base flex items-center justify-between">
+                        <span>${q.title}</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">關卡 ${q.id}</span>
+                    </h3>
+                    <p class="text-xs text-slate-400">${q.desc}</p>
+
+                    <div class="space-y-2 pt-2">
+                        ${q.phrases.map(p => `
+                            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
+                                <div>
+                                    <div class="font-jp font-bold text-slate-200 text-sm">${p.jp}</div>
+                                    <div class="text-[11px] text-slate-400 font-mono">${p.romaji}</div>
+                                    <div class="text-xs text-sakura-300 mt-0.5">${p.hk}</div>
+                                </div>
+                                <button onclick="speakKana('${p.jp}')" class="p-2.5 rounded-lg bg-sakura-500/10 hover:bg-sakura-500/20 text-sakura-400 transition shrink-0">
+                                    <i class="fa-solid fa-volume-high text-xs"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 8. AI SENSEI (GEMINI API INTEGRATION) ---
+        async function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const userMsg = input.value.trim();
+            if (!userMsg) return;
+
+            appendChatMessage('user', userMsg);
+            input.value = '';
+
+            // Show typing indicator
+            const typingId = appendChatMessage('ai', '櫻花 Sensei 思考中...', true);
+
+            try {
+                const responseText = await callGeminiAPI(userMsg);
+                document.getElementById(typingId)?.remove();
+                appendChatMessage('ai', responseText);
+            } catch (err) {
+                document.getElementById(typingId)?.remove();
+                appendChatMessage('ai', '對唔住，網絡連線超時，請稍後再試！');
+            }
+        }
+
+        function sendQuickPrompt(promptText) {
+            document.getElementById('aiInput').value = promptText;
+            sendAIMessage();
+        }
+
+        function appendChatMessage(sender, text, isTyping = false) {
+            const container = document.getElementById('aiChatMessages');
+            const msgId = 'msg-' + Date.now();
+
+            const isUser = sender === 'user';
+            const wrapper = document.createElement('div');
+            wrapper.id = msgId;
+            wrapper.className = `flex gap-3 ${isUser ? 'justify-end' : ''}`;
+
+            wrapper.innerHTML = `
+                ${!isUser ? `<div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>` : ''}
+                <div class="${isUser ? 'bg-sakura-600 text-white rounded-tr-none' : 'bg-slate-800/90 text-slate-200 rounded-tl-none border border-slate-700/50'} p-3 rounded-2xl max-w-[85%] text-sm leading-relaxed">
+                    ${text.replace(/\n/g, '<br>')}
+                </div>
+                ${isUser ? `<div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center shrink-0 font-bold text-xs"><i class="fa-solid fa-user"></i></div>` : ''}
+            `;
+
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+            return msgId;
+        }
+
+        async function callGeminiAPI(prompt) {
+            const apiKey = ""; // Built-in Canvas runtime dynamic API key slot
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const systemInstruction = "你是一位專為30多歲廣東話母語新手打造的日語導師『櫻花 Sensei』。你的回答必須親切、簡明扼要，用廣東話（粵語）加上適當的日文解釋。適時附帶日文假名與羅馬拼音。";
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "櫻花 Sensei 收到你的訊息了，請繼續加油學習！";
+        }
+
+        // --- 9. GAMIFICATION UTILS ---
+        function addXP(amount) {
+            userXP += amount;
+            document.getElementById('userXP').innerText = userXP;
+
+            // Level up condition every 100 XP
+            const newLevel = Math.floor(userXP / 100) + 1;
+            if (newLevel > userLevel) {
+                userLevel = newLevel;
+                document.getElementById('userLevel').innerText = `Lv.${userLevel}`;
+                showToast(`🎊 升級了！恭喜達到 Lv.${userLevel}`, "success");
+            }
+        }
+
+        function showToast(msg, type = "info") {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl font-bold text-sm shadow-xl flex items-center gap-2 transition transform translate-y-10 opacity-0 ${type === 'success' ? 'bg-emerald-500 text-slate-950' : 'bg-rose-500 text-white'}`;
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
